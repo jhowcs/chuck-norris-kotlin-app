@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Chuck Norris App</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_joke">Joke</string>
+    <string name="title_categories">Categories</string>
+    <string name="title_saved">Saved</string>
+    <string name="get_joke">Get Joke</string>
 </resources>
