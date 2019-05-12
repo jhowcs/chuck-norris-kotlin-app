@@ -1,25 +1,27 @@
-package com.jhowcs.chucknorrisapp
+package com.jhowcs.chucknorrisapp.presentation
 
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
-import com.jhowcs.chucknorrisapp.repository.remote.Api
+import androidx.lifecycle.Observer
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.jhowcs.chucknorrisapp.R
+import com.jhowcs.chucknorrisapp.data.JokeApi
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: JokeViewModel by inject()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
-                message.setText(R.string.title_home)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_dashboard -> {
-                message.setText(R.string.title_dashboard)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_notifications -> {
-                message.setText(R.string.title_notifications)
                 return@OnNavigationItemSelectedListener true
             }
         }
@@ -30,8 +32,18 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val api = Api()
-        api.retrofit
+        fetchRandomJoke()
+
+        btnGetJoke.setOnClickListener {
+            fetchRandomJoke()
+        }
+
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+    }
+
+    private fun fetchRandomJoke() {
+        viewModel.fetchJoke().observe(this, Observer<JokeApi> {
+            random_joke.text = it.value
+        })
     }
 }
