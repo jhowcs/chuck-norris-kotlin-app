@@ -5,9 +5,9 @@ import com.jhowcs.chucknorrisapp.BaseSchedulers
 import com.jhowcs.chucknorrisapp.data.JokeApi
 import com.jhowcs.chucknorrisapp.repository.remote.JokeRepository
 import com.jhowcs.chucknorrisapp.repository.remote.JokeService
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.times
-import com.nhaarman.mockitokotlin2.whenever
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import org.junit.Assert.assertEquals
@@ -16,13 +16,12 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.verify
 
 @RunWith(JUnit4::class)
 class JokeViewModelTest {
 
-    private val jokeServiceMock = mock<JokeService>()
-    private val schedulerMock = mock<BaseSchedulers>()
+    private val jokeServiceMock = mockk<JokeService>()
+    private val schedulerMock = mockk<BaseSchedulers>()
     private val viewModel = JokeViewModel(JokeRepository(jokeServiceMock), schedulerMock)
 
     @get:Rule
@@ -30,16 +29,18 @@ class JokeViewModelTest {
 
     @Before
     fun setup() {
-        whenever(schedulerMock.io()).thenReturn(Schedulers.trampoline())
-        whenever(schedulerMock.ui()).thenReturn(Schedulers.trampoline())
+        every { schedulerMock.io() } returns Schedulers.trampoline()
+        every { schedulerMock.ui() } returns Schedulers.trampoline()
     }
 
     @Test
     fun whenCallFetchJokeShouldReturnAJokeFromApiService() {
-        val joke = JokeApi("z916IyqnRJiVT5wcpcD_fw",
+        val joke = JokeApi(
+            "z916IyqnRJiVT5wcpcD_fw",
             "https:\\/\\/api.chucknorris.io\\/jokes\\/z916IyqnRJiVT5wcpcD_fw",
-            "The Bearded Lady at Ringling Bros.")
-        whenever(jokeServiceMock.fetchRandomJoke()).thenReturn(Observable.just(joke))
+            "The Bearded Lady at Ringling Bros."
+        )
+        every { jokeServiceMock.fetchRandomJoke() } returns Observable.just(joke)
 
         val liveData = viewModel.fetchJoke()
 
@@ -54,10 +55,12 @@ class JokeViewModelTest {
         val joke2 = JokeApi("id_2", "http://url_2", "Value 2")
         val joke3 = JokeApi("id_3", "http://url_3", "Value 3")
 
-        whenever(jokeServiceMock.fetchRandomJoke())
-            .thenReturn(Observable.just(joke1))
-            .thenReturn(Observable.just(joke2))
-            .thenReturn(Observable.just(joke3))
+        every { jokeServiceMock.fetchRandomJoke() } returnsMany
+                listOf(
+                    Observable.just(joke1),
+                    Observable.just(joke2),
+                    Observable.just(joke3)
+                )
 
         val liveData = viewModel.fetchJoke()
         assertEquals(joke1, liveData.value)
@@ -68,6 +71,6 @@ class JokeViewModelTest {
         viewModel.fetchJoke()
         assertEquals(joke3, liveData.value)
 
-        verify(jokeServiceMock, times(3)).fetchRandomJoke()
+        verify(exactly = 3) {jokeServiceMock.fetchRandomJoke() }
     }
 }
