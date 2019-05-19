@@ -14,7 +14,7 @@ val appModule = module {
     single<BaseApi> { Api() }
     single<BaseSchedulers> { SchedulersImpl() }
 
-    factory { (get<BaseApi>() as Api).retrofit.create(JokeService::class.java) }
+    single { (get<BaseApi>() as Api).retrofit.create(JokeService::class.java) }
     factory { JokeRepository(get()) }
 
     single { JokeViewModel(get(), get())  }
