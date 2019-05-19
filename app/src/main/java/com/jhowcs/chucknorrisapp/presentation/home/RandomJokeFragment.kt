@@ -21,7 +21,7 @@ class RandomJokeFragment: Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.getJoke().takeIf { it.isNotEmpty() }?.apply {
+        viewModel.getLastJoke().takeIf { it.isNotEmpty() }?.apply {
             showJoke(this)
         } ?: fetchRandomJoke()
 
