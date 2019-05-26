@@ -10,18 +10,19 @@ import com.jhowcs.chucknorrisapp.R
 import com.jhowcs.chucknorrisapp.data.JokeApi
 import com.jhowcs.chucknorrisapp.presentation.JokeViewModel
 import kotlinx.android.synthetic.main.fragment_home_random_joke.*
-import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class RandomJokeFragment: Fragment() {
 
-    private val viewModel: JokeViewModel by inject()
+    private val jokeViewModel: JokeViewModel by viewModel()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_home_random_joke, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel.getLastJoke().takeIf { it.isNotEmpty() }?.apply {
+        jokeViewModel.getLastJoke().takeIf { it.isNotEmpty() }?.apply {
+
             showJoke(this)
         } ?: fetchRandomJoke()
 
@@ -33,7 +34,7 @@ class RandomJokeFragment: Fragment() {
     }
 
     private fun fetchRandomJoke() {
-        viewModel.fetchJoke().observe(this, Observer<JokeApi> {
+        jokeViewModel.fetchJoke().observe(this, Observer<JokeApi> {
             showJoke(it.value)
         })
     }

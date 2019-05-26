@@ -7,6 +7,7 @@ import com.jhowcs.chucknorrisapp.repository.remote.BaseApi
 import com.jhowcs.chucknorrisapp.repository.remote.JokeRepository
 import com.jhowcs.chucknorrisapp.repository.remote.JokeService
 import io.mockk.mockk
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModuleTest = module {
@@ -17,5 +18,5 @@ val appModuleTest = module {
     single { mockk<JokeService>() }
     factory { JokeRepository(get()) }
 
-    single { JokeViewModel(get(), get())  }
+    viewModel { JokeViewModel(get(), get())  }
 }
