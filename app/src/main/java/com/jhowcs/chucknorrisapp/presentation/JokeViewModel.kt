@@ -15,11 +15,17 @@ class JokeViewModel(
 
     private val liveDataJoke = MutableLiveData<JokeApi>()
 
+    private val _liveDataCategories = MutableLiveData<List<String>>()
+    val liveDataCategories = _liveDataCategories
+
     private val compositeDisposable = CompositeDisposable()
 
     private var lastJoke = ""
+    private var hasCategories = false
 
     fun getLastJoke() = lastJoke
+
+    fun hasCategories() = hasCategories
 
     fun fetchJoke(): LiveData<JokeApi> {
         compositeDisposable.add(repository.fetchRandomJoke()
@@ -34,6 +40,19 @@ class JokeViewModel(
             ))
 
         return liveDataJoke
+    }
+
+    fun fetchCategories() {
+        compositeDisposable.add(repository.fetchJokeCategories()
+            .subscribeOn(scheduler.io())
+            .observeOn(scheduler.ui())
+            .subscribe(
+                {
+                    hasCategories = true
+                    _liveDataCategories.value = it
+                },
+                {})
+        )
     }
 
     override fun onCleared() {
