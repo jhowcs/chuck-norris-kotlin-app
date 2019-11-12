@@ -12,9 +12,9 @@ import androidx.test.uiautomator.UiDevice
 import com.jhowcs.chucknorrisapp.BaseSchedulers
 import com.jhowcs.chucknorrisapp.R
 import com.jhowcs.chucknorrisapp.data.JokeApi
-import com.jhowcs.chucknorrisapp.di.appModuleTest
 import com.jhowcs.chucknorrisapp.repository.remote.JokeService
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.verify
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -23,32 +23,29 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.koin.core.context.startKoin
-import org.koin.test.AutoCloseKoinTest
-import org.koin.test.inject
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 
 @RunWith(AndroidJUnit4::class)
-// With AutoCloseKoinTest we ensure that after each test runs
-// stopKoin method will be called, and also give us
-// a by inject delegate
-class MainActivityTest : AutoCloseKoinTest() {
+class MainActivityTest {
 
-    private val jokeService: JokeService by inject()
-    private val scheduler: BaseSchedulers by inject()
+    private val jokeService = mockk<JokeService>()
+    private val scheduler = mockk<BaseSchedulers>()
 
     @get:Rule
     val rule = InstantTaskExecutorRule()
 
     @Before
     fun setup() {
-        // because we said to our Custom TestAppJUnitRunner
-        // to load a custom test application which is not calling
-        // startKoin method we need to call it manually here as well
-        startKoin { modules(appModuleTest) }
+        loadKoinModules( module(override = true) {
+            single { scheduler }
+            single { jokeService }
+        })
 
         every { scheduler.io() } returns Schedulers.trampoline()
         every { scheduler.ui() } returns Schedulers.trampoline()
     }
+
 
     @Test
     fun whenStartsActivityShouldShowARandomJoke() {
