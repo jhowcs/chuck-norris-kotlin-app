@@ -28,6 +28,9 @@ import org.koin.test.AutoCloseKoinTest
 import org.koin.test.inject
 
 @RunWith(AndroidJUnit4::class)
+// With AutoCloseKoinTest we ensure that after each test runs
+// stopKoin method will be called, and also give us
+// a by inject delegate
 class MainActivityTest : AutoCloseKoinTest() {
 
     private val jokeService: JokeService by inject()
@@ -38,6 +41,9 @@ class MainActivityTest : AutoCloseKoinTest() {
 
     @Before
     fun setup() {
+        // because we said to our Custom TestAppJUnitRunner
+        // to load a custom test application which is not calling
+        // startKoin method we need to call it manually here as well
         startKoin { modules(appModuleTest) }
 
         every { scheduler.io() } returns Schedulers.trampoline()
